@@ -1,4 +1,9 @@
 package com.example.gestor_datos_personales.repository;
 
-public interface ExpenseRepository {
+import com.example.gestor_datos_personales.model.entity.Expense;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ExpenseRepository extends JpaRepository<@NotNull Expense, @NotNull Long> {
+
 }
