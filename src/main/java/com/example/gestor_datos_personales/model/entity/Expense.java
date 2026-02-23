@@ -1,4 +1,6 @@
 package com.example.gestor_datos_personales.model.entity;
+import com.example.gestor_datos_personales.model.entity.enumerador.CategoryEnum;
+import com.example.gestor_datos_personales.model.entity.enumerador.PaymentMethodEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
