@@ -1,20 +1,25 @@
 package com.example.gestor_datos_personales.controller;
+import com.example.gestor_datos_personales.dto.ExpenseDto;
 import com.example.gestor_datos_personales.exception.GlobalExceptionHandler;
 import com.example.gestor_datos_personales.model.entity.Expense;
+import com.example.gestor_datos_personales.model.entity.enumerador.CategoryEnum;
 import com.example.gestor_datos_personales.service.ExpenseService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.math.BigDecimal;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
+
 @RestController
+@RequestMapping
 public class ExpenseController {
 
     @Autowired
@@ -39,7 +44,26 @@ public class ExpenseController {
         if(expenseOptional.isPresent()){
             return ResponseEntity.ok().build();
         }
-        return ResponseEntity.notFound().build();
+        return (ResponseEntity<?>) ResponseEntity.notFound().build().getBody();
+    }
+
+    @GetMapping("/{categoryEnum}")
+    @Transactional(readOnly = true)
+    public List<Expense> expenseListCategoryEnum(@PathVariable CategoryEnum categoryEnum){
+        return service.expenseListCategory(categoryEnum);
+    }
+
+
+    @GetMapping("/{amount}")
+    @Transactional(readOnly = true)
+    public List<Expense> expenseListAmount(@PathVariable BigDecimal amount){
+        return service.expenseListAmount(amount);
+    }
+
+    @GetMapping("/{date}")
+    @Transactional(readOnly = true)
+    public List<Expense> expenseListDate(@PathVariable LocalDate date){
+        return service.expenseListDate(date);
     }
 
     @PostMapping("/expenses")
@@ -58,9 +82,14 @@ public class ExpenseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateExpense(@PathVariable Long id,@RequestBody Expense expense){
-
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<?> updateExpense(@PathVariable Long id, @RequestBody ExpenseDto expenseDto) {
+        try {
+            ExpenseDto result = (ExpenseDto) service.updateExpense(id, expenseDto);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            // Si el Service lanza la excepción porque no encontró el ID
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
