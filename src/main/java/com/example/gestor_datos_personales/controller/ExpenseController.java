@@ -17,9 +17,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping
+@RequestMapping("/api/expenses")
 public class ExpenseController {
 
     @Autowired
@@ -42,31 +42,31 @@ public class ExpenseController {
         Optional<Expense> expenseOptional = service.expenseById(id);
 
         if(expenseOptional.isPresent()){
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(service.expenseById(id));
         }
         return (ResponseEntity<?>) ResponseEntity.notFound().build().getBody();
     }
 
-    @GetMapping("/{categoryEnum}")
+    @GetMapping("/category/{category}")
     @Transactional(readOnly = true)
     public List<Expense> expenseListCategoryEnum(@PathVariable CategoryEnum categoryEnum){
         return service.expenseListCategory(categoryEnum);
     }
 
 
-    @GetMapping("/{amount}")
+    @GetMapping("/amount/{amount}")
     @Transactional(readOnly = true)
     public List<Expense> expenseListAmount(@PathVariable BigDecimal amount){
         return service.expenseListAmount(amount);
     }
 
-    @GetMapping("/{date}")
+    @GetMapping("/date/{date}")
     @Transactional(readOnly = true)
     public List<Expense> expenseListDate(@PathVariable LocalDate date){
         return service.expenseListDate(date);
     }
 
-    @PostMapping("/expenses")
+    @PostMapping
     @Transactional
     public ResponseEntity<?> createNewExpense(@RequestBody  Expense expense) {
 
@@ -95,6 +95,7 @@ public class ExpenseController {
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<?> deleteExpense(@PathVariable Long id){
+
         service.delete(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
