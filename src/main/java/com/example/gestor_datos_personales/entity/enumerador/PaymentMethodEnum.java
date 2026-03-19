@@ -1,4 +1,4 @@
-package com.example.gestor_datos_personales.model.entity.enumerador;
+package com.example.gestor_datos_personales.entity.enumerador;
 
 public enum PaymentMethodEnum {
 

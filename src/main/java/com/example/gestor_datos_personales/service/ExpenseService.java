@@ -1,8 +1,8 @@
 package com.example.gestor_datos_personales.service;
 
 import com.example.gestor_datos_personales.dto.ExpenseDto;
-import com.example.gestor_datos_personales.model.entity.Expense;
-import com.example.gestor_datos_personales.model.entity.enumerador.CategoryEnum;
+import com.example.gestor_datos_personales.entity.Expense;
+import com.example.gestor_datos_personales.entity.enumerador.CategoryEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,15 +11,15 @@ import java.util.Optional;
 
 public interface ExpenseService {
 
-    List<Expense> expenseList();
-    List<Expense> expenseListCategory(CategoryEnum categoryEnum);
-    List<Expense> expenseListAmount(BigDecimal amount);
-    List<Expense> expenseListDate(LocalDate date);
-    Optional<Expense> expenseById(Long id);
+    List<ExpenseDto> expenseList();
+    List<ExpenseDto> expenseListCategory(CategoryEnum categoryEnum);
+    List<ExpenseDto> expenseListAmount(BigDecimal amount);
+    List<ExpenseDto> expenseListDate(LocalDate date);
+    Optional<ExpenseDto> expenseById(Long id);
 
-    Expense newExpense (Expense expense);
+    Expense newExpense (ExpenseDto dto);
 
-    Expense updateExpense(Long id, ExpenseDto dto);
+    ExpenseDto updateExpense(Long id, ExpenseDto dto);
 
     void delete(Long lid);
 

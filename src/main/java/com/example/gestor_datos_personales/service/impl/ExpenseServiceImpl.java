@@ -2,62 +2,83 @@ package com.example.gestor_datos_personales.service.impl;
 
 import com.example.gestor_datos_personales.dto.ExpenseDto;
 import com.example.gestor_datos_personales.mapper.ExpenseMapper;
-import com.example.gestor_datos_personales.model.entity.Expense;
-import com.example.gestor_datos_personales.model.entity.enumerador.CategoryEnum;
+import com.example.gestor_datos_personales.entity.Expense;
+import com.example.gestor_datos_personales.entity.enumerador.CategoryEnum;
 import com.example.gestor_datos_personales.repository.ExpenseRepository;
 import com.example.gestor_datos_personales.service.ExpenseService;
-import org.mapstruct.Mapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
 
-    @Autowired
-    private ExpenseRepository repository;
+    private final ExpenseRepository repository;
+    private final ExpenseMapper mapper;
 
-    @Autowired
-    private ExpenseMapper mapper;
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Expense> expenseList() {
-        return repository.findAll();
-    }
-
-    @Override
-    public List<Expense> expenseListCategory(CategoryEnum categoryEnum) {
-        return repository.findAll();
-    }
-
-    @Override
-    public List<Expense> expenseListAmount(BigDecimal amount) {
-        return repository.findAll();
-    }
-
-    @Override
-    public List<Expense> expenseListDate(LocalDate date) {
-        return repository.findAll();
+    public ExpenseServiceImpl(ExpenseRepository repository, ExpenseMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Expense> expenseById(Long id) {
-        return repository.findById(id);
+    public List<ExpenseDto> expenseList() {
+        return repository.findAll()
+                .stream()
+                .map(mapper :: toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseDto> expenseListCategory(CategoryEnum categoryEnum) {
+        return repository.findAll()
+                .stream()
+                .map(mapper :: toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseDto> expenseListAmount(BigDecimal amount) {
+        return repository.findAll()
+                .stream()
+                .map(mapper :: toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseDto> expenseListDate(LocalDate date) {
+        return repository.findAll()
+                .stream()
+                .map(mapper :: toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ExpenseDto> expenseById(Long id) {
+        return repository.findById(id)
+                .map(mapper :: toDto);
     }
 
     @Override
     @Transactional
-    public Expense newExpense(Expense expense) {
+    public Expense newExpense(ExpenseDto dto) {
+
+        Expense expense = mapper.toEntity(dto);
+
         return repository.save(expense);
     }
 
     @Override
+    @Transactional
     public ExpenseDto updateExpense(Long id, ExpenseDto dto) {
         return repository.findById(id).map(existingExpense -> {
 
@@ -70,6 +91,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void delete(Long id) {
         repository.deleteById(id);
     }

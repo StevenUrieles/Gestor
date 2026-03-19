@@ -1,10 +1,10 @@
 package com.example.gestor_datos_personales.controller;
 import com.example.gestor_datos_personales.dto.ExpenseDto;
 import com.example.gestor_datos_personales.exception.GlobalExceptionHandler;
-import com.example.gestor_datos_personales.model.entity.Expense;
-import com.example.gestor_datos_personales.model.entity.enumerador.CategoryEnum;
+import com.example.gestor_datos_personales.entity.Expense;
+import com.example.gestor_datos_personales.entity.enumerador.CategoryEnum;
+import com.example.gestor_datos_personales.exception.valueDoesNotExistException;
 import com.example.gestor_datos_personales.service.ExpenseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +22,11 @@ import java.util.Optional;
 @RequestMapping("/api/expenses")
 public class ExpenseController {
 
-    @Autowired
-    private ExpenseService service;
+    private final ExpenseService service;
+
+    public ExpenseController(ExpenseService service) {
+        this.service = service;
+    }
 
     @ExceptionHandler
     public ResponseEntity<?> handlerExceptionGlobal(GlobalExceptionHandler g){
@@ -31,15 +34,13 @@ public class ExpenseController {
     }
 
     @GetMapping
-    @Transactional(readOnly = true)//solo lectura
-    public List<Expense> expensesList(){
+    public List<ExpenseDto> expensesList(){
         return service.expenseList();
     }
 
     @GetMapping("/{id}")
-    @Transactional(readOnly = true)//solo lectura
     public ResponseEntity<?> expenseById(@PathVariable Long id){
-        Optional<Expense> expenseOptional = service.expenseById(id);
+        Optional<ExpenseDto> expenseOptional = service.expenseById(id);
 
         if(expenseOptional.isPresent()){
             return ResponseEntity.ok(service.expenseById(id));
@@ -48,29 +49,27 @@ public class ExpenseController {
     }
 
     @GetMapping("/category/{category}")
-    @Transactional(readOnly = true)
-    public List<Expense> expenseListCategoryEnum(@PathVariable CategoryEnum categoryEnum){
+    public List<ExpenseDto> expenseListCategoryEnum(@PathVariable CategoryEnum categoryEnum){
         return service.expenseListCategory(categoryEnum);
     }
 
 
     @GetMapping("/amount/{amount}")
     @Transactional(readOnly = true)
-    public List<Expense> expenseListAmount(@PathVariable BigDecimal amount){
+    public List<ExpenseDto> expenseListAmount(@PathVariable BigDecimal amount){
         return service.expenseListAmount(amount);
     }
 
     @GetMapping("/date/{date}")
     @Transactional(readOnly = true)
-    public List<Expense> expenseListDate(@PathVariable LocalDate date){
+    public List<ExpenseDto> expenseListDate(@PathVariable LocalDate date){
         return service.expenseListDate(date);
     }
 
     @PostMapping
-    @Transactional
-    public ResponseEntity<?> createNewExpense(@RequestBody  Expense expense) {
+    public ResponseEntity<?> createNewExpense(@RequestBody  ExpenseDto dto) {
 
-            Expense e = service.newExpense(expense);
+        Expense e = service.newExpense(dto);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()       // Toma la URL actual (/expenses)
@@ -83,17 +82,10 @@ public class ExpenseController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateExpense(@PathVariable Long id, @RequestBody ExpenseDto expenseDto) {
-        try {
-            ExpenseDto result = (ExpenseDto) service.updateExpense(id, expenseDto);
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            // Si el Service lanza la excepción porque no encontró el ID
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        return ResponseEntity.ok(service.updateExpense(id, expenseDto));
     }
 
     @DeleteMapping("/{id}")
-    @Transactional
     public ResponseEntity<?> deleteExpense(@PathVariable Long id){
 
         service.delete(id);

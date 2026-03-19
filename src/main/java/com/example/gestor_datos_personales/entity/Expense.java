@@ -1,6 +1,7 @@
-package com.example.gestor_datos_personales.model.entity;
-import com.example.gestor_datos_personales.model.entity.enumerador.CategoryEnum;
-import com.example.gestor_datos_personales.model.entity.enumerador.PaymentMethodEnum;
+package com.example.gestor_datos_personales.entity;
+import com.example.gestor_datos_personales.entity.enumerador.CategoryEnum;
+import com.example.gestor_datos_personales.entity.enumerador.PaymentMethodEnum;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -9,8 +10,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Table(name = "expense")
@@ -21,43 +20,39 @@ public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
-    @Getter @Setter
     private Long id;
 
 
     //Descripción del gasto
-    @NotNull
-    @Column(nullable = false, length = 200)
-    @NotBlank
+    @NotBlank(message = "Los valores no pueden ser nulos o blancos")
     @Size(min = 3, max = 200)
     private String description;
 
 
     //Monto del gasto
-    @NotNull
+    @NotNull(message = "Los valores no pueden ser nulos o blancos")
     @DecimalMin(value = "0.01", inclusive = true)
     @Digits(integer = 10, fraction = 2)
     private BigDecimal amount;
 
 
     //Categoría del gasto
-    @NotNull
-    @Column(nullable = false)
+    @NotNull(message = "Los valores no pueden ser nulos o blancos")
     @Enumerated(EnumType.STRING)
     private CategoryEnum category;
 
 
     //Fecha del gasto
-    @NotNull
-    @Column(nullable = false)
-    @PastOrPresent(message = "la fecha no puede ser futura")
+    @NotNull(message = "Los valores no pueden ser nulos o blancos")
+    @FutureOrPresent(message = "la fecha no puede ser pasada")
     private LocalDate date;
 
 
     //Método de pago usado
-    @NotNull
-    @Column(nullable = false)
+    @NotNull(message = "Los valores no pueden ser nulos o blancos")
     @Enumerated(EnumType.STRING)
     private PaymentMethodEnum paymentMethod;
 
-}
+    }
+
+
